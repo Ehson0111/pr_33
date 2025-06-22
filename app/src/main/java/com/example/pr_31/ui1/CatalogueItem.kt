@@ -89,7 +89,7 @@ fun CatalogueItem(
 
                 // Название товара
                 Text(
-                    text = product.name,
+                    text = "Best Seller",
                     fontSize = 16.sp,
                     modifier = Modifier
                         .padding(horizontal = 12.dp, vertical = 8.dp)
@@ -169,7 +169,7 @@ fun CatalogueItem(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "${product.price_current / 100} ₽",
+                                    text = "${product.price_current } ₽",
                                     color = Color.Black,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold

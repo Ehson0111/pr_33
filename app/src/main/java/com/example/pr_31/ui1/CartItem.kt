@@ -71,7 +71,7 @@ fun CartItem(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = product.name,
+                            text = "Best Seller",
                             fontSize = 16.sp,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
@@ -133,7 +133,7 @@ fun CartItem(
                                     horizontalAlignment = Alignment.End,
                                 ) {
                                     Text(
-                                        text = (product.price_current / 100).toString() + "₽",
+                                        text = (product.price_current).toString() + "₽",
                                         fontSize = 16.sp,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
@@ -165,7 +165,7 @@ fun CartItem(
                                     elevation = null,
                                 ) {
                                     Text(
-                                        text = "${product.price_current / 100} ₽",
+                                        text = "${product.price_current } ₽",
                                         modifier = Modifier.align(Alignment.CenterVertically),
                                         color = Color.Black,
                                         style = MaterialTheme.typography.h6,
