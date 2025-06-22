@@ -1,7 +1,5 @@
 package com.example.pr_31.ui1
 
-
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
@@ -16,12 +14,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
 import com.example.pr_31.Product
 import com.example.pr_31.R
 
 @Composable
-fun ProductCard(product: Product) {
+fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
     Card(
         modifier = Modifier
             .size(width = 162.dp, height = 182.dp)
@@ -35,18 +32,6 @@ fun ProductCard(product: Product) {
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(modifier = Modifier.weight(0.7f)) {
-
-                IconButton(
-                    onClick = { /* Toggle favorite */ },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                ) {
-                    Image(
-                        modifier=Modifier.size(28.dp),
-                        painter = painterResource(R.drawable.iconwhite),
-                        contentDescription = "Favorite"
-                    )
-                }
                 Image(
                     painter = painterResource(R.drawable.nike),
                     contentScale = ContentScale.FillBounds,
@@ -54,6 +39,17 @@ fun ProductCard(product: Product) {
                     modifier = Modifier.fillMaxSize()
                 )
 
+                IconButton(
+                    onClick = { /* Toggle favorite */ },
+                    modifier = Modifier
+                        .size(28.dp)
+                        .align(Alignment.TopEnd)
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.iconwhite),
+                        contentDescription = "Favorite"
+                    )
+                }
             }
 
             Row(
@@ -63,14 +59,13 @@ fun ProductCard(product: Product) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("₽${product.price_current}.00", style = MaterialTheme.typography.h6)
+                Text("₽${product.price_current ?: 0}.00", style = MaterialTheme.typography.h6)
 
-                IconButton(onClick = { /* Add to cart */ }) {
+                IconButton(onClick = { onAddToCart(product) }) {
                     Image(
-
-                        modifier = Modifier.size(28.dp),
                         painter = painterResource(R.drawable.plus),
-                        contentDescription = "Add to Cart"
+                        contentDescription = "Add to Cart",
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }

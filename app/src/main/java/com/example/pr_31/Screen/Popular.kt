@@ -1,6 +1,5 @@
 package com.example.pr_31.Screen
 
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,21 +25,19 @@ import com.example.pr_31.R
 import com.example.pr_31.ui1.ProductCard
 
 @Composable
-fun AllProductsScreen(navController: NavController, products: List<Product>) {
-
+fun AllProductsScreen(navController: NavController, products: List<Product>, onAddToCart: (Product) -> Unit) {
     Column(modifier = Modifier.padding(top = 22.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-
-            IconButton(onClick = { /* Избранное */ }) {
+            IconButton(onClick = { navController.popBackStack() }) { // Возврат на предыдущий экран
                 Icon(
                     painter = painterResource(R.drawable.back),
-                    contentDescription = "Избранное",
-                    tint = Color.Gray, modifier = Modifier.size(44.dp)
+                    contentDescription = "Назад",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(44.dp)
                 )
             }
 
@@ -52,26 +49,20 @@ fun AllProductsScreen(navController: NavController, products: List<Product>) {
 
             IconButton(onClick = { /* Избранное */ }) {
                 Icon(
-
-                    modifier = Modifier.size(44.dp),
                     painter = painterResource(R.drawable.like),
                     contentDescription = "Избранное",
-                    tint = Color.Gray
+                    tint = Color.Gray,
+                    modifier = Modifier.size(44.dp)
                 )
             }
-
-
         }
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.padding(16.dp)
         ) {
             items(products.filterNotNull()) { product ->
-
-                ProductCard(product = product)
+                ProductCard(product = product, onAddToCart = onAddToCart)
             }
         }
     }
 }
-
-

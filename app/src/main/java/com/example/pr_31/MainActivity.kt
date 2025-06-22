@@ -1,5 +1,3 @@
-
-
 package com.example.pr_31
 
 import android.os.Bundle
@@ -23,6 +21,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.pr_31.Screen.AllProductsScreen
+import com.example.pr_31.Screen.CartScreen
+import com.example.pr_31.Screen.SearchScreen
 import com.example.pr_31.ui.theme.Pr_31Theme
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.DataSnapshot
@@ -41,12 +41,12 @@ class MainActivity : ComponentActivity() {
             Pr_31Theme {
                 val categories = remember { mutableStateOf(listOf<Category>()) }
                 val products = remember { mutableStateOf(listOf<Product>()) }
+                val cartItems = remember { mutableStateOf(listOf<CartItem>()) }
                 val error = remember { mutableStateOf<String?>(null) }
                 val isLoading = remember { mutableStateOf(true) }
 
                 loadDataFromFirebase(categories, products, error, isLoading)
 
-                // Обработка состояний загрузки и ошибок
                 when {
                     isLoading.value -> {
                         Box(
@@ -66,7 +66,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     else -> {
-                        App(categories.value, products.value)
+                        App(categories.value, products.value, cartItems.value) { updatedCart ->
+                            cartItems.value = updatedCart
+                        }
                     }
                 }
             }
@@ -86,13 +88,8 @@ class MainActivity : ComponentActivity() {
             database.child("categories").addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val categories = snapshot.children.mapNotNull { it.getValue(Category::class.java) }
-                    Log.d("MainActivity", "Loaded categories: $categories")
                     categoriesState.value = categories
-
-                    // Проверяем, загружены ли продукты
-                    if (productsState.value.isNotEmpty()) {
-                        isLoadingState.value = false
-                    }
+                    if (productsState.value.isNotEmpty()) isLoadingState.value = false
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -105,14 +102,8 @@ class MainActivity : ComponentActivity() {
             database.child("products").addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val products = snapshot.children.mapNotNull { it.getValue(Product::class.java) }
-//                        .distinctBy { it.id } // Удаляем дубликаты по id
-                    Log.d("MainActivity", "Loaded products: $products")
                     productsState.value = products
-
-                    // Проверяем, загружены ли категории
-                    if (categoriesState.value.isNotEmpty()) {
-                        isLoadingState.value = false
-                    }
+                    if (categoriesState.value.isNotEmpty()) isLoadingState.value = false
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -129,7 +120,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun App(categories: List<Category>, products: List<Product>) {
+    fun App(categories: List<Category>, products: List<Product>, cartItems: List<CartItem>, onCartUpdate: (List<CartItem>) -> Unit) {
         val navController = rememberNavController()
 
         NavHost(navController = navController, startDestination = "SignUp") {
@@ -137,10 +128,59 @@ class MainActivity : ComponentActivity() {
                 SignUp(navController = navController)
             }
             composable("home") {
-                Home(navController = navController, categories = categories, products = products)
+                Home(
+                    navController = navController,
+                    categories = categories,
+                    products = products,
+                    onAddToCart = { product ->
+                        val existing = cartItems.find { it.product.id == product.id }
+                        val updatedCart = if (existing != null) {
+                            cartItems.toMutableList().apply { this[cartItems.indexOf(existing)].count += 1 }
+                        } else {
+                            cartItems.toMutableList().apply { add(CartItem(product, 1)) }
+                        }
+                        onCartUpdate(updatedCart)
+                    }
+                )
             }
             composable("allProducts") {
-                AllProductsScreen(navController = navController, products = products)
+                AllProductsScreen(
+                    navController = navController,
+                    products = products,
+                    onAddToCart = { product ->
+                        val existing = cartItems.find { it.product.id == product.id }
+                        val updatedCart = if (existing != null) {
+                            cartItems.toMutableList().apply { this[cartItems.indexOf(existing)].count += 1 }
+                        } else {
+                            cartItems.toMutableList().apply { add(CartItem(product, 1)) }
+                        }
+                        onCartUpdate(updatedCart)
+                    }
+                )
+            }
+            composable("cart") {
+                CartScreen(
+                    navController = navController,
+                    cartItems = cartItems,
+                    onCartUpdate = { updatedCart ->
+                        onCartUpdate(updatedCart)
+                    }
+                )
+            }
+            composable("search") {
+                SearchScreen(
+                    navController = navController,
+                    products = products,
+                    onAddToCart = { product ->
+                        val existing = cartItems.find { it.product.id == product.id }
+                        val updatedCart = if (existing != null) {
+                            cartItems.toMutableList().apply { this[cartItems.indexOf(existing)].count += 1 }
+                        } else {
+                            cartItems.toMutableList().apply { add(CartItem(product, 1)) }
+                        }
+                        onCartUpdate(updatedCart)
+                    }
+                )
             }
         }
     }
